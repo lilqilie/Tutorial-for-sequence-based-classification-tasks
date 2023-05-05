@@ -5,10 +5,10 @@ from multiprocessing import Pool, Manager
 
 import pandas as pd
 import wget
-
 from download_config import Config
 
 config = Config()
+
 
 
 def ftp_download(args):
@@ -70,19 +70,16 @@ def multi_download(args):
 def main():
     successful_list = Manager().list()
     df = pd.read_csv(config.input_path)
-    df_all = pd.read_csv('Tao_NCBI_22June_RefSeq_32927_Complete_1NP_2P.csv')
     ftp_list = df[config.csv_col].to_list()
     print('download list numbers:', len(ftp_list))
     args = []
     for ftp in ftp_list:
-        raw_name = ftp.split('/')[-1][:-4]
-        real_ftp = df_all[df_all['assembly_accession'] == raw_name]['ftp_path'].to_list()[0]
-        real_name = real_ftp.split('/')[-1]
-        fna_file_url = real_ftp + '/' + real_name + config.file_type
-        output_file_name = config.output_path + real_name + config.file_type
-        args.append([real_name, fna_file_url, output_file_name, successful_list])
+        raw_name = ftp.split('/')[-1]
+        #print('raw_name',raw_name)
+        fna_file_url = ftp + '/' + raw_name + config.file_type
+        output_file_name = config.output_path + raw_name + config.file_type
+        args.append([raw_name, fna_file_url, output_file_name, successful_list])
     multi_download(args)
-    # ftp_download(args[11111])
 
 
 if __name__ == '__main__':
